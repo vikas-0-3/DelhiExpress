@@ -84,13 +84,14 @@ kbd{font-family:var(--f-display);font-size:.8em;background:#3b3240;border-radius
     <canvas id="hud"></canvas>
 
     <div id="topbtns">
+      <button id="voiceBtn" aria-label="Enable voice reactions" title="Voice reactions">VO</button>
       <button id="muteBtn" aria-label="Mute sound" title="Mute (M)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path id="muteWave" d="M16.5 8.5a5 5 0 010 7"/></svg></button>
       <button id="exitBtn" aria-label="Exit shift" title="Exit (Esc)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     </div>
 
     <div id="touch">
       <div class="grp"><button data-k="left" aria-label="Steer left">&#9664;</button><button data-k="right" aria-label="Steer right">&#9654;</button></div>
-      <div class="grp"><button data-k="meter">METER</button><button data-k="brake">BRAKE</button><button data-k="horn">HORN</button></div>
+      <div class="grp"><button data-k="meter">METER</button><button data-k="brake">BRAKE</button><button data-k="horn">HORN</button><button data-k="boost">NITRO</button></div>
     </div>
 
     <section id="menu" class="ov">
@@ -103,12 +104,13 @@ kbd{font-family:var(--f-display);font-size:.8em;background:#3b3240;border-radius
       </div>
       <button class="btn" id="playBtn">SHIFT SHURU</button>
       <ul class="how">
-        <li><b>Drive:</b> <kbd>W</kbd> gas, <kbd>S</kbd> brake (hold to reverse), <kbd>A</kbd> <kbd>D</kbd> or arrows to steer.</li>
+        <li><b>Drive:</b> <kbd>W</kbd> gas, <kbd>S</kbd> brake/reverse, <kbd>A</kbd> <kbd>D</kbd> steer, <kbd>Shift</kbd> nitro.</li>
         <li><b>Sawari:</b> roll slowly past a waving passenger to pick up, stop slowly in the green bay to drop.</li>
         <li><b>Meter:</b> hold <kbd>E</kbd> to run it fast. Fare climbs, gussa fills. At 100 they walk off.</li>
-        <li><b>Grab:</b> marigold coins = ₹5. Chai cup = +8 seconds.</li>
-        <li><b>Race:</b> Bhola is on the road too. Complete rides and grab bonuses to beat his earnings before time runs out.</li>
-        <li><b>Careful:</b> traffic police challan you if you fiddle the meter in front of them. Cyclists can fall, and chased dogs flee if bumped.</li>
+        <li><b>Grab:</b> marigold coins pay up to ₹25 with combo streaks. Chai cup = +8 seconds. Every 3 completed rides earns a ₹75 mission bonus.</li>
+        <li><b>Challenge:</b> complete rides, chain coin pickups, dodge traffic and build your best single-player score.</li>
+        <li><b>Power-up:</b> hold <kbd>Shift</kbd> or NITRO for a speed burst. It recharges while cruising. Near-misses and coin streaks boost your score.</li>
+        <li><b>Voice:</b> turn on the speaker to hear Raju's dramatic Dilli reactions when things go wrong.</li>
         <li><b>Road:</b> puddles splash nearby pedestrians. <b>Horn:</b> <kbd>Space</kbd>. Cows will not care. <b>Mute:</b> <kbd>M</kbd></li>
       </ul>
     </section>
@@ -121,7 +123,7 @@ kbd{font-family:var(--f-display);font-size:.8em;background:#3b3240;border-radius
         <div><small>Sawari</small><strong id="sRides">0</strong></div>
         <div><small>Extra vasooli</small><strong id="sOver">0</strong></div>
       </div>
-      <p class="best" id="raceResult"></p>
+      <p class="best" id="challengeResult"></p>
       <p class="best" id="best"></p>
       <div class="row"><button class="btn" id="againBtn">PHIR SE SHIFT</button><button class="btn ghost" id="menuBtn">Menu</button></div>
     </section>
@@ -595,36 +597,6 @@ train.position.x=-22; train.position.y=12.2; scene.add(train);
 let colorIdx=0, driver='Raju Bhaiya', muted=false, autoGas=false;
 const keys={}, touch={};
 let g=null, P=null;
-const cpuVehicle=makeRick('#245b9e','#f2c230');
-cpuVehicle.scale.setScalar(.78);
-cpuVehicle.userData.rider.visible=false;
-cpuVehicle.userData.rider2.visible=false;
-scene.add(cpuVehicle);
-const cpuTag=textSprite('CPU: BHOLA',360,64,'#16131a','#f6a81c',6);
-scene.add(cpuTag);
-function makeCpuStop(c){
-  clearCpuStop(c);
-  const group=new THREE.Group(),side=c.targetX<210?-1:1;
-  const person=makePerson('#d9822b'); person.rotation.y=sideRot(side);
-  person.position.x=toX(side<0?RL-12:RR+12); group.add(person);
-  if(c.targetCount>1){
-    const friend=makePerson('#4a6fa5'); friend.rotation.y=sideRot(side);
-    friend.position.x=toX(side<0?RL-19:RR+19); group.add(friend);
-  }
-  const marker=C(group,new THREE.MeshBasicMaterial({color:'#f6a81c',transparent:true,opacity:.35}),.8,14,0,.2,0);
-  const sign=textSprite('BHOLA KI SAWARI',360,64,'#16131a','#f6a81c',6);
-  sign.position.set(toX(side<0?RL-17:RR+17),4.5,0); group.add(sign);
-  group.userData.marker=marker; group.userData.sign=sign;
-  group.position.z=toZ(c.targetY); scene.add(group); c.stopGroup=group;
-}
-function clearCpuStop(c){
-  if(!c.stopGroup)return;
-  scene.remove(c.stopGroup);
-  if(c.stopGroup.userData.sign.userData.tex)c.stopGroup.userData.sign.userData.tex.dispose();
-  c.stopGroup.userData.sign.material.dispose();
-  c.stopGroup.userData.marker.material.dispose();
-  c.stopGroup=null;
-}
 function buildPlayer(){
   if(P)scene.remove(P);
   P=makeRick(darken(PAL[colorIdx]),PAL[colorIdx]); P.scale.setScalar(.9); scene.add(P);
@@ -646,14 +618,11 @@ function clearGameMeshes(){
   for(const c of g.coins)scene.remove(c.mesh);
   for(const c of g.chais)scene.remove(c.mesh);
   for(const e of g.effects)removeEffect(e);
-  clearCpuStop(g.cpu);
   clearPass();
 }
 function newGame(mode){
   clearGameMeshes(); clearChunks();
-  setRickPassengers(cpuVehicle,0);
-  g={mode,p:{x:210,y:0,speed:mode==='menu'?90:0,vx:0,inv:0},obs:[],coins:[],chais:[],effects:[],cpu:{x:300,y:0,speed:0,vx:0,earned:0,rides:0,route:'pickup',targetX:105,targetY:430,targetCount:1,fare:0,wait:0,hitCooldown:0,stopGroup:null},spawnY:500,t:0,left:SHIFT,earned:0,rides:0,over:0,pass:null,shake:0,floats:[],toast:null,mult:1,aqi:412,aqiT:0,horn:0,camX:0};
-  makeCpuStop(g.cpu);
+  g={mode,p:{x:210,y:0,speed:mode==='menu'?90:0,vx:0,inv:0},obs:[],coins:[],chais:[],effects:[],spawnY:500,t:0,left:SHIFT,earned:0,rides:0,over:0,pass:null,shake:0,floats:[],toast:null,mult:1,aqi:412,aqiT:0,horn:0,camX:0,combo:1,coinStreak:0,nitro:100,mission:0,missionDone:false};
   if(mode==='play'){ while(g.spawnY<1300) spawn(); newWait(); }
 }
 function clearPass(){
@@ -664,7 +633,13 @@ function clearPass(){
 }
 
 /* ---------- audio ---------- */
-let ac=null;
+let ac=null, voiceEnabled=true, voiceReady=false, voiceIndex=0;
+const streetWords=['bc','tu janta hai mera baap kon hai','chutiye','system hai apna'];
+function speakStreetReaction(){
+  if(!voiceEnabled||muted||!('speechSynthesis' in window))return;
+  const word=streetWords[voiceIndex++%streetWords.length];
+  try{window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(word);u.lang='hi-IN';u.rate=1.02;u.pitch=.92;u.volume=.85;window.speechSynthesis.speak(u)}catch(_){ }
+}
 function audio(){ if(!ac){try{ac=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}} if(ac&&ac.state==='suspended')ac.resume(); return ac }
 let engineSound=null;
 function startEngineSound(){
@@ -798,7 +773,10 @@ function update(dt){
   p.inv=Math.max(0,p.inv-dt); g.shake=Math.max(0,g.shake-dt*30); g.horn=Math.max(0,g.horn-dt);
 
   const brake=keys.down||touch.brake, gas=keys.up||(autoGas&&!brake);
+  const boosting=(keys.boost||touch.boost)&&g.nitro>0&&!brake;
+  g.nitro=clamp(g.nitro+(boosting?-34:11)*dt,0,100);
   const offroad=p.x<RL+8||p.x>RR-8, cap=offroad?110:MAXV;
+  if(boosting){p.speed=Math.min(cap+95,p.speed+310*dt)}
   if(brake){ if(p.speed>0)p.speed=Math.max(0,p.speed-440*dt); else p.speed=Math.max(-70,p.speed-200*dt) }
   else if(gas){ p.speed=Math.min(cap,p.speed+150*dt) }
   else { if(p.speed>0)p.speed=Math.max(0,p.speed-90*dt); else p.speed=Math.min(0,p.speed+200*dt) }
@@ -808,10 +786,10 @@ function update(dt){
   p.x=clamp(p.x+p.vx*dt,26,420-26);
   p.y+=p.speed*dt;
 
-  while(g.spawnY<Math.max(p.y,g.cpu.y)+1300) spawn();
-  const behind=Math.max(p.y,g.cpu.y);
+  while(g.spawnY<p.y+1300) spawn();
+  const behind=p.y;
   g.obs=g.obs.filter(o=>{ const keep=o.y>behind-500&&o.x>-40&&o.x<460; if(!keep)removeObs(o); return keep });
-  g.coins=g.coins.filter(c=>{ const keep=c.y>behind-300; if(!keep)scene.remove(c.mesh); return keep });
+  g.coins=g.coins.filter(c=>{ const keep=c.y>behind-300; if(!keep){scene.remove(c.mesh);if(c.y>p.y-300){g.coinStreak=0;g.combo=1}} return keep });
   g.chais=g.chais.filter(c=>{ const keep=c.y>p.y-300; if(!keep)scene.remove(c.mesh); return keep });
 
   for(const o of g.obs){
@@ -870,16 +848,17 @@ function update(dt){
       }
       continue;
     }
+    const nearX=Math.abs(o.x-p.x), nearY=Math.abs(o.y-p.y);
+    if(!o.nearMiss&&nearY<48&&nearY>24&&nearX<(28+o.w)/2+18&&nearX>(28+o.w)/2){o.nearMiss=true;g.earned+=10;float('CLOSE CALL +₹10','#7be0a0');tone(900,1200,.1,'triangle',.06)}
     if(!o.fallen&&Math.abs(o.x-p.x)<(28+o.w-6)/2&&Math.abs(o.y-p.y)<(54+o.h-8)/2){
       if(o.k==='hole'){ if(!o.hit){o.hit=true;p.speed*=.55;g.shake=6;float('Gaddha!','#ffcf6a');sCrash()} }
       else if(p.inv<=0) crash(o);
     }
     if(o.fallen)o.fallTime=Math.min(1,o.fallTime+dt*5);
   }
-  updateCpu(dt);
   updateEffects(dt);
   for(let i=g.coins.length-1;i>=0;i--){ const c=g.coins[i];
-    if(Math.abs(c.x-p.x)<26&&Math.abs(c.y-p.y)<34){ g.earned+=5; scene.remove(c.mesh); g.coins.splice(i,1); sCoin(); float('+₹5','#ffd36a') } }
+    if(Math.abs(c.x-p.x)<26&&Math.abs(c.y-p.y)<34){ g.coinStreak++; g.combo=Math.min(5,1+Math.floor(g.coinStreak/3)); const coinPay=5*g.combo; g.earned+=coinPay; scene.remove(c.mesh); g.coins.splice(i,1); sCoin(); float('+₹'+coinPay,'#ffd36a') } }
   for(let i=g.chais.length-1;i>=0;i--){ const c=g.chais[i];
     if(Math.abs(c.x-p.x)<30&&Math.abs(c.y-p.y)<38){ g.left=Math.min(180,g.left+8); scene.remove(c.mesh); g.chais.splice(i,1); sCash(); toast('Chai peeke fresh! +8 sec'); float('+8s','#7be0a0') } }
 
@@ -897,7 +876,7 @@ function update(dt){
     const inc=d*.03+dt*.2;
     ps.base+=inc; ps.fare+=inc*g.mult;
     if(g.mult>1.2) ps.gussa+=(g.mult-1)*6*dt; else ps.gussa=Math.max(0,ps.gussa-9*dt);
-    if(ps.gussa>=100){ toast('Sawari paise diye bina chal di!'); float('₹0','#ff6a55'); g.mult=1; newWait() }
+    if(ps.gussa>=100){ speakStreetReaction(); toast('Sawari paise diye bina chal di!'); float('₹0','#ff6a55'); g.mult=1; newWait() }
     else {
       const dd=ps.dY-p.y, dx=ps.dSide<0?RL-12:RR+12;
       if(Math.abs(dd)<55&&Math.abs(p.x-dx)<125&&Math.abs(p.speed)<85) dropoff();
@@ -910,87 +889,6 @@ function update(dt){
   if(g.toast){g.toast.t-=dt;if(g.toast.t<=0)g.toast=null}
   for(const f of g.floats){f.t-=dt;f.y-=.06*dt}
   g.floats=g.floats.filter(f=>f.t>0);
-}
-function updateCpu(dt){
-  const c=g.cpu;
-  const p=g.p, lanes=[94,148,210,272,326];
-  c.hitCooldown=Math.max(0,c.hitCooldown-dt);
-  if(c.route==='wait'){
-    c.wait-=dt;
-    if(c.wait<=0)startCpuTrip(c,'pickup');
-  }
-  const coinsAhead=g.coins.filter(coin=>coin.y>c.y-15&&coin.y<c.y+240);
-  let coinTarget=null;
-  for(const coin of coinsAhead){
-    if(!coinTarget||coin.y-c.y<coinTarget.y-c.y)coinTarget=coin;
-  }
-  let aimX=c.targetX;
-  if(coinTarget&&!(c.route==='pickup'&&c.targetY-c.y<150)&&!(c.route==='ride'&&c.targetY-c.y<150))aimX=coinTarget.x;
-
-  let bestX=lanes[0],bestScore=Infinity;
-  for(const lane of lanes){
-    let score=Math.abs(lane-c.x)*.18+Math.abs(lane-aimX)*.12;
-    for(const o of g.obs){
-      const gap=o.y-c.y;
-      if(gap<-20||gap>250||o.k==='cop'||o.k==='bump')continue;
-      const predicted=o.x+o.vx*Math.min(1,gap/Math.max(80,c.speed));
-      const reach=24+o.w/2;
-      if(Math.abs(lane-predicted)<reach){
-        const weight=o.k==='hole'||o.k==='puddle'?1.5:1;
-        score+=weight*(260-Math.max(0,gap))+(gap<100?180:0);
-      }
-    }
-    if(Math.abs(c.y-p.y)<100&&Math.abs(lane-p.x)<48)score+=160;
-    if(score<bestScore){bestScore=score;bestX=lane}
-  }
-  c.vx=clamp((bestX-c.x)*2.5,-125,125);
-
-  let desiredSpeed=bestScore>220?125:rand(178,215);
-  const goalGap=c.targetY-c.y;
-  if(c.route==='pickup'||c.route==='ride'){
-    if(goalGap>0&&goalGap<300)desiredSpeed=Math.min(desiredSpeed,Math.sqrt(goalGap*180));
-    if(goalGap<=0)desiredSpeed=0;
-  }
-  const lead=c.y-p.y;
-  if(lead>700)desiredSpeed=0;
-  else if(lead<-500)desiredSpeed=Math.max(desiredSpeed,250);
-  if((c.route==='pickup'||c.route==='ride')&&goalGap<-55){
-    c.targetY=c.y+rand(260,420);
-    c.targetX=c.x<210?315:105;
-  }
-  if(c.route==='ride')c.fare+=(Math.max(0,c.speed)*dt*.03+dt*.2)*c.count;
-  c.speed+=clamp(desiredSpeed-c.speed,-190*dt,110*dt);
-  c.x=clamp(c.x+c.vx*dt,80,340);
-  c.y+=c.speed*dt;
-
-  if((c.route==='pickup'||c.route==='ride')&&Math.abs(c.targetY-c.y)<50&&Math.abs(c.targetX-c.x)<40&&c.speed<90){
-    if(c.route==='pickup'){
-      clearCpuStop(c); c.route='ride'; c.count=c.targetCount; c.fare=24*c.count;
-      setRickPassengers(cpuVehicle,c.count,'#4a6fa5');
-      c.targetY=c.y+rand(1450,2250);
-      c.targetX=c.x<210?315:105;
-    }else{
-      c.earned+=Math.round(c.fare)+10; c.rides++; c.count=0;
-      setRickPassengers(cpuVehicle,0); c.route='wait'; c.wait=rand(2,5);
-    }
-  }
-  for(let i=g.coins.length-1;i>=0;i--){
-    const coin=g.coins[i];
-    if(Math.abs(coin.x-c.x)<24&&Math.abs(coin.y-c.y)<28){
-      c.earned+=5; scene.remove(coin.mesh); g.coins.splice(i,1);
-    }
-  }
-  if(c.hitCooldown===0){
-    const hazard=g.obs.find(o=>o.k!=='bump'&&o.k!=='cop'&&Math.abs(o.x-c.x)<(34+o.w)/2&&Math.abs(o.y-c.y)<(50+o.h)/2);
-    if(hazard){c.speed*=.42;c.earned=Math.max(0,c.earned-5);c.hitCooldown=1.2}
-  }
-  if(!c.stopGroup&&c.route==='pickup')makeCpuStop(c);
-}
-function startCpuTrip(c,route){
-  c.route=route; c.targetCount=Math.random()<.35?2:1;
-  c.targetX=Math.random()<.5?105:315;
-  c.targetY=c.y+rand(360,650);
-  makeCpuStop(c);
 }
 function crash(o){
   const p=g.p,T=TYPES[o.k];
@@ -1005,7 +903,7 @@ function crash(o){
   p.inv=.9; p.speed=0; p.y-=22; p.x+=Math.sign(p.x-o.x||1)*16; g.shake=12;
   const pen=Math.min(g.earned,T.pen); g.earned-=pen;
   if(g.pass.st==='ride') g.pass.gussa=Math.min(99,g.pass.gussa+18);
-  toast(T.msg+(pen?'  -₹'+pen:'')); float(pen?'-₹'+pen:'Oof!','#ff6a55'); sCrash();
+  toast(T.msg+(pen?'  -₹'+pen:'')); float(pen?'-₹'+pen:'Oof!','#ff6a55'); sCrash(); speakStreetReaction();
 }
 function honk(){
   g.horn=.35; sHorn(); const p=g.p; let cow=false;
@@ -1034,6 +932,7 @@ function dropoff(){
   const tip=ps.gussa<25?10:0;
   g.earned+=fare+tip; g.rides++; g.over+=extra;
   float('+₹'+(fare+tip),'#7be0a0'); toast(tip?'₹'+fare+' + ₹10 tip, shukriya!':'Kiraya mila: ₹'+fare); sCash();
+  if(g.rides%3===0){g.earned+=75;float('TRIP MASTER +₹75','#ffd36a');toast('3 rides complete! Mission bonus +₹75')}
   g.mult=1; newWait();
 }
 function endShift(){
@@ -1044,8 +943,8 @@ function endShift(){
   if(ex>e*.35&&e>=200) r+=' + Overcharge Specialist';
   $('rank').textContent=driver+': '+r;
   $('sEarn').textContent='₹'+e; $('sRides').textContent=g.rides; $('sOver').textContent='₹'+ex;
-  const result=e>g.cpu.earned?'You beat Bhola!':e<g.cpu.earned?'Bhola wins this shift!':'It is a tie!';
-  $('raceResult').textContent=result+'  You ₹'+e+' vs Bhola ₹'+g.cpu.earned+' ('+g.cpu.rides+' CPU rides)';
+  const title=g.rides>=5?'SAWARI SUPERSTAR':g.coinStreak>=5?'COIN COMBO KING':'SOLO SHIFT COMPLETE';
+  $('challengeResult').textContent=title+' · '+g.rides+' rides · best coin streak '+g.coinStreak+' · '+(g.nitro>0?'Nitro left!':'Nitro empty');
   let best=0; try{best=+localStorage.getItem('ddx-best')||0; if(e>best){best=e;localStorage.setItem('ddx-best',String(e))}}catch(_){ best=Math.max(best,e) }
   $('best').textContent='Sabse zyada kamai: ₹'+best;
   setPassengers(0);
@@ -1055,7 +954,7 @@ function endShift(){
 /* ======================= RENDER ======================= */
 function render3d(dt){
   const p=g.p, zp=toZ(p.y), xp=toX(p.x);
-  ensureChunks(Math.max(0,p.y),Math.max(0,g.cpu.y));
+  ensureChunks(Math.max(0,p.y));
   const snap=Math.round(zp/20)*20;
   road.position.set(0,0,snap); pathL.position.z=snap; pathR.position.z=snap; kerbL.position.z=snap; kerbR.position.z=snap; dust.position.z=snap;
   ptex.offset.y=0;
@@ -1084,11 +983,6 @@ function render3d(dt){
     }
     if(o.vx&&o.k!=='cop')o.mesh.rotation.y=o.k==='dog'?(o.vx>0?-PI/2:PI/2):-o.vx*.012;
   }
-  const cpuX=g.cpu.x, cpuY=g.cpu.y;
-  cpuVehicle.position.set(toX(cpuX),0,toZ(cpuY)); cpuVehicle.rotation.y=-g.cpu.vx*.0012;
-  cpuVehicle.visible=g.mode==='play';
-  cpuTag.position.set(toX(cpuX),5,toZ(cpuY+12)); cpuTag.visible=cpuVehicle.visible;
-  if(g.cpu.stopGroup){g.cpu.stopGroup.position.set(0,0,toZ(g.cpu.targetY));g.cpu.stopGroup.visible=g.mode==='play'&&g.cpu.route==='pickup'}
   for(const c of g.coins){ c.mesh.position.set(toX(c.x),1.7+Math.sin(g.t*4+c.ph)*.15,toZ(c.y)); c.mesh.userData.spin.rotation.y=g.t*4 }
   for(const c of g.chais){ c.mesh.position.set(toX(c.x),1.9+Math.sin(g.t*3)*.2,toZ(c.y)); c.mesh.userData.spin.rotation.y=g.t*2 }
   const ps=g.pass;
@@ -1124,8 +1018,9 @@ function hud(){
   hx.font='22px Bungee,Impact,sans-serif';
   hx.fillStyle=(g.left<20&&Math.floor(g.left*2)%2)?'#ff6a55':'#f1ead9'; hx.fillText(m+':'+String(s).padStart(2,'0'),14,38);
   hx.fillStyle='#f6a81c'; hx.fillText('₹'+g.earned,112,38);
-  hx.fillStyle='#d9cdb4'; hx.font='700 9px Hind,sans-serif'; hx.fillText('BHOLA '+g.cpu.route.toUpperCase(),210,14);
-  hx.fillStyle='#f1ead9'; hx.font='15px Bungee,Impact,sans-serif'; hx.fillText('₹'+g.cpu.earned,210,35);
+  hx.fillStyle='#d9cdb4'; hx.font='700 9px Hind,sans-serif'; hx.fillText('COMBO',210,14);
+  hx.fillStyle='#f1ead9'; hx.font='15px Bungee,Impact,sans-serif'; hx.fillText('×'+g.combo,210,35);
+  hx.fillStyle='#3b3240';rr(210,45,70,6,3);hx.fill();hx.fillStyle='#2e9d5b';rr(210,45,70*g.nitro/100,6,3);hx.fill();
   hx.fillStyle='#e8a04a'; hx.fillText(String(g.aqi),262,38);
   const onboard=ps&&ps.st==='ride'?ps.count:0;
   hx.textAlign='center'; hx.fillStyle='#d9cdb4'; hx.font='700 10px Hind,sans-serif';
@@ -1205,8 +1100,10 @@ function askExit(){ if(g.mode==='play'){g.mode='pause';$('confirm').hidden=false
 $('exitBtn').onclick=()=>{ if(g.mode==='play'||g.mode==='pause')askExit(); else toMenu() };
 function setMute(){ $('muteWave').style.display=muted?'none':''; $('muteBtn').setAttribute('aria-label',muted?'Unmute sound':'Mute sound') }
 $('muteBtn').onclick=()=>{muted=!muted;setMute()};
+$('voiceBtn').onclick=()=>{voiceEnabled=!voiceEnabled;$('voiceBtn').textContent=voiceEnabled?'VO ON':'VO OFF';$('voiceBtn').style.color=voiceEnabled?'#f6a81c':'#b9ad98';if(!voiceEnabled&&'speechSynthesis' in window)window.speechSynthesis.cancel()};
+$('voiceBtn').textContent='VO ON';
 
-const KM={KeyW:'up',ArrowUp:'up',KeyS:'down',ArrowDown:'down',KeyA:'left',ArrowLeft:'left',KeyD:'right',ArrowRight:'right',KeyE:'meter',Space:'horn'};
+const KM={KeyW:'up',ArrowUp:'up',KeyS:'down',ArrowDown:'down',KeyA:'left',ArrowLeft:'left',KeyD:'right',ArrowRight:'right',KeyE:'meter',Space:'horn',ShiftLeft:'boost',ShiftRight:'boost'};
 addEventListener('keydown',e=>{
   if(e.target&&e.target.tagName==='INPUT')return;
   if(e.code==='Escape'){askExit();return}
