@@ -3,11 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Dilli Dhakka Express</title>
-<meta name="claude:viewport-fit-sides" content="cover">
+<title>Delhi Express</title>
+<meta name="viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bungee&family=Hind:wght@400;600;700&display=swap">
+<link rel="icon" href="/favicon.ico" sizes="any" />
 <script src="three.min.js"></script>
 <style>
 html{color-scheme:dark}
@@ -95,8 +96,9 @@ kbd{font-family:var(--f-display);font-size:.8em;background:#3b3240;border-radius
     </div>
 
     <section id="menu" class="ov">
-      <h1><span class="a">DILLI</span><span class="b">DHAKKA EXPRESS</span></h1>
-      <div class="deva">दिल्ली धक्का एक्सप्रेस</div>
+      <br><br><br>
+      <h1><span class="a">Delhi</span><span class="b"> EXPRESS</span></h1>
+      <div class="deva">दिल्ली एक्सप्रेस</div>
       <p class="tag">Dhuaan bhi, jam bhi, meter bhi. 3D e-rickshaw chaos from Lal Qila to the Ring Road, AQI 400+.</p>
       <label class="field" for="nameIn">Driver ka naam<input id="nameIn" maxlength="14" value="Raju Bhaiya" autocomplete="off"></label>
       <div class="field">Rickshaw ka rang
@@ -110,7 +112,7 @@ kbd{font-family:var(--f-display);font-size:.8em;background:#3b3240;border-radius
         <li><b>Grab:</b> marigold coins pay up to ₹25 with combo streaks. Chai cup = +8 seconds. Every 3 completed rides earns a ₹75 mission bonus.</li>
         <li><b>Challenge:</b> complete rides, chain coin pickups, dodge traffic and build your best single-player score.</li>
         <li><b>Power-up:</b> hold <kbd>Shift</kbd> or NITRO for a speed burst. It recharges while cruising. Near-misses and coin streaks boost your score.</li>
-        <li><b>Voice:</b> turn on the speaker to hear Raju's dramatic Dilli reactions when things go wrong.</li>
+        <li><b>Voice:</b> turn on the speaker to hear Raju's dramatic Delhi reactions when things go wrong.</li>
         <li><b>Road:</b> puddles splash nearby pedestrians. <b>Horn:</b> <kbd>Space</kbd>. Cows will not care. <b>Mute:</b> <kbd>M</kbd></li>
       </ul>
     </section>
@@ -148,7 +150,7 @@ const stage=$('stage'),wrap=$('wrap'),glc=$('gl'),hudc=$('hud'),hx=hudc.getConte
 
 const COLORS=[['Laal','#d6362b'],['Neela','#2f6fe0'],['Hara','#2e9d5b'],['Peela','#f2c230'],['Baingani','#8a4fc7'],['Narangi','#f08a24'],['Gulabi','#e8579b'],['Firozi','#1fb5b0']];
 const PAL=COLORS.map(c=>c[1]);
-const DESTS=['Connaught Place','India Gate','Lal Qila','Karol Bagh','Hauz Khas','Sarojini Nagar','Chandni Chowk','Nehru Place','Dilli Haat','Rajiv Chowk','Lajpat Nagar','Saket','Paharganj','Khan Market'];
+const DESTS=['Connaught Place','India Gate','Lal Qila','Karol Bagh','Hauz Khas','Sarojini Nagar','Chandni Chowk','Nehru Place','Delhi Haat','Rajiv Chowk','Lajpat Nagar','Saket','Paharganj','Khan Market'];
 const PTYPES=[
  {n:'Aunty ji',col:'#c94f8a',line:d=>d+' chaloge, beta?'},
  {n:'Uncle ji',col:'#4a6fa5',line:d=>'Meter se '+d+'?'},
@@ -412,9 +414,9 @@ function makeObs(o){
 function darken(c){ const k=new THREE.Color(c); k.multiplyScalar(.72); return '#'+k.getHexString() }
 
 /* ======================= CITY CHUNKS ======================= */
-const SHOPNAMES=['SHARMA SWEETS','CHAI SUTTA BAR','JAIN ELECTRONICS','MOBILE REPAIR','DILLI TAILORS','KAPOOR CYCLE','PUNJABI DHABA','GOLGAPPA CORNER','FAST PHOTOSTAT','BANSAL CHAAT','RAJU PAN SHOP','NEW LOOK SALON'];
+const SHOPNAMES=['SHARMA SWEETS','CHAI SUTTA BAR','JAIN ELECTRONICS','MOBILE REPAIR','Delhi TAILORS','KAPOOR CYCLE','PUNJABI DHABA','GOLGAPPA CORNER','FAST PHOTOSTAT','BANSAL CHAAT','RAJU PAN SHOP','NEW LOOK SALON'];
 const SIGNCOLS=[['#b3261e','#ffe9a0'],['#1d5fa8','#fff'],['#2e7d4f','#ffe9a0'],['#6a2c91','#ffd36a'],['#d9822b','#1b1a1e'],['#111','#ffb347']];
-const BOARDS=['AQI 400? PEEJIYE ADRAK CHAI','SHARMA JI KA PARATHA','JAM MEIN FANSE? HORN BAJAO','DILLI DEKHO, DILLI JIYO','PINK LINE: 12 MIN MEIN','FRESH GANNE KA JUICE'];
+const BOARDS=['AQI 400? PEEJIYE ADRAK CHAI','SHARMA JI KA PARATHA','JAM MEIN FANSE? HORN BAJAO','Delhi DEKHO, Delhi JIYO','PINK LINE: 12 MIN MEIN','FRESH GANNE KA JUICE'];
 const sideRot=side=>side<0?PI/2:-PI/2;
 
 function shopFront(par,side,frontX,zc,l,R){
@@ -938,7 +940,7 @@ function dropoff(){
 function endShift(){
   g.mode='over';
   const e=g.earned, ex=g.over;
-  let r=e<200?'Gali Ka Gabru':e<500?'Chandni Chowk Champion':e<900?'Ring Road Ka Raja':e<1400?'Dilli Ka Don':'Metro Ka Dushman';
+  let r=e<200?'Gali Ka Gabru':e<500?'Chandni Chowk Champion':e<900?'Ring Road Ka Raja':e<1400?'Delhi Ka Don':'Metro Ka Dushman';
   if(e<10) r='Learner (L-board laga lo)';
   if(ex>e*.35&&e>=200) r+=' + Overcharge Specialist';
   $('rank').textContent=driver+': '+r;
