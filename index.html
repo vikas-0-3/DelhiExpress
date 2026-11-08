@@ -634,7 +634,7 @@ function clearPass(){
 
 /* ---------- audio ---------- */
 let ac=null, voiceEnabled=true, voiceReady=false, voiceIndex=0;
-const streetWords=['bc','tu janta hai mera baap kon hai','chutiye','system hai apna'];
+const streetWords=['bc','tu jaanta hai mera baap kon hai','chutiye','andhaa hai kya'];
 function speakStreetReaction(){
   if(!voiceEnabled||muted||!('speechSynthesis' in window))return;
   const word=streetWords[voiceIndex++%streetWords.length];
