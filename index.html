@@ -5,10 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Delhi Express</title>
 <meta name="viewport-fit-sides" content="cover">
+<link rel="shortcut icon" href="./favicon.ico?v=2" type="image/x-icon">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bungee&family=Hind:wght@400;600;700&display=swap">
-<link rel="icon" href="/favicon.ico" sizes="any" />
 <script src="three.min.js"></script>
 <style>
 html{color-scheme:dark}
@@ -636,7 +636,7 @@ function clearPass(){
 
 /* ---------- audio ---------- */
 let ac=null, voiceEnabled=true, voiceReady=false, voiceIndex=0;
-const streetWords=['bc','tu jaanta hai mera baap kon hai','chutiye','andhaa hai kya'];
+const streetWords=['nashe me hai kya','tu jaanta hai mera baap kon hai','dekh k chala naa','andhaa hai kya'];
 function speakStreetReaction(){
   if(!voiceEnabled||muted||!('speechSynthesis' in window))return;
   const word=streetWords[voiceIndex++%streetWords.length];
